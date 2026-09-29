@@ -34,11 +34,22 @@ public class MessWebServer {
     private static boolean running = false;
     private static boolean adminLoggedIn = false;
 
+    public static int getEffectivePort() {
+        String envPort = System.getenv("PORT");
+        if (envPort != null && !envPort.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(envPort.trim());
+            } catch (NumberFormatException ignored) {}
+        }
+        return PORT;
+    }
+
     public static synchronized void startServer() {
         if (running) return;
 
+        int port = getEffectivePort();
         try {
-            server = HttpServer.create(new InetSocketAddress(PORT), 0);
+            server = HttpServer.create(new InetSocketAddress(port), 0);
             server.createContext("/", new ClientMenuHandler());
             server.createContext("/admin", new AdminMenuHandler());
             server.createContext("/admin/add", new AdminAddHandler());
@@ -49,9 +60,9 @@ public class MessWebServer {
             server.setExecutor(null);
             server.start();
             running = true;
-            System.out.println("Hostel Mess Web Server running at: http://localhost:" + PORT + "/");
+            System.out.println("Hostel Mess Web Server running at: http://0.0.0.0:" + port + "/");
         } catch (IOException e) {
-            System.err.println("Could not start Web Server on port " + PORT + ": " + e.getMessage());
+            System.err.println("Could not start Web Server on port " + port + ": " + e.getMessage());
         }
     }
 

@@ -47,6 +47,26 @@ public class AppMain {
             System.err.println("Web server note: " + e.getMessage());
         }
 
+        // Check if running on cloud server or headless environment (e.g. Render / Linux Docker)
+        boolean serverOnly = java.awt.GraphicsEnvironment.isHeadless();
+        for (String arg : args) {
+            if ("--server-only".equalsIgnoreCase(arg) || "--headless".equalsIgnoreCase(arg)) {
+                serverOnly = true;
+                break;
+            }
+        }
+
+        if (serverOnly) {
+            System.out.println("Running in Server-Only / Headless Cloud Mode. GUI skipped.");
+            try {
+                // Keep the server alive indefinitely
+                Thread.currentThread().join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return;
+        }
+
         // Launch unified 2-tab GUI safely on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             MainAppFrame app = new MainAppFrame();

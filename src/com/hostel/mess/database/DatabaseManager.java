@@ -56,6 +56,17 @@ public class DatabaseManager {
         } else {
             setDefaultMysqlUrl();
         }
+
+        // Support cloud environment variables (e.g., Render / Railway Cloud MySQL)
+        String envHost = System.getenv("MYSQL_HOST");
+        if (envHost != null && !envHost.trim().isEmpty()) {
+            dbType = "mysql";
+            String envPort = System.getenv().getOrDefault("MYSQL_PORT", "3306").trim();
+            String envDb = System.getenv().getOrDefault("MYSQL_DATABASE", "hostel_mess_db").trim();
+            mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root").trim();
+            mysqlPassword = System.getenv().getOrDefault("MYSQL_PASSWORD", "").trim();
+            mysqlUrl = "jdbc:mysql://" + envHost.trim() + ":" + envPort + "/" + envDb + "?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        }
     }
 
     private void setDefaultMysqlUrl() {
